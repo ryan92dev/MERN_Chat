@@ -54,20 +54,6 @@ const userSchema = new mongoose.Schema(
       },
     ],
 
-    friendRequestsSent: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-      },
-    ],
-
-    friendRequestsReceived: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-      },
-    ],
-
     refreshToken: [String],
   },
   {

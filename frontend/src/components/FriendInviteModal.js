@@ -1,9 +1,36 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { useSendFriendInvitationMutation } from "../features/FriendInvites/friendInvitesApiSlice";
+import { validateMail } from "../utils/Validators";
 
 const FriendInviteModal = ({ friendInviteModal, setFriendInviteModal }) => {
+  const [email, setEmail] = useState("");
+  const [isFormValid, setIsFormValid] = useState(false);
+
   const closeModal = () => {
     setFriendInviteModal(false);
   };
+
+  const [sendFriendInvitation, { isLoading, isSuccess }] =
+    useSendFriendInvitationMutation();
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    sendFriendInvitation({ email });
+
+    setEmail("");
+
+    if (!isLoading) {
+      closeModal();
+    }
+
+    if (isSuccess) {
+      alert("Friend invitation sent successfully!");
+    }
+  };
+
+  useEffect(() => {
+    setIsFormValid(validateMail(email));
+  }, [email]);
 
   return (
     friendInviteModal && (
@@ -20,11 +47,17 @@ const FriendInviteModal = ({ friendInviteModal, setFriendInviteModal }) => {
               <input
                 className="w-full p-3 text-sm font-medium text-gray-200 placeholder-gray-300 bg-gray-600 resize-none rounded-xl "
                 id="messagesInput1-2"
-                name=""
                 placeholder="Enter email address..."
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
               />
             </div>
-            <button className="flex items-center justify-center w-1/2 mt-4 text-white bg-blue-500 rounded-lg">
+            <button
+              disabled={!isFormValid}
+              onClick={handleSubmit}
+              className={`flex items-center justify-center  mt-4 text-white bg-blue-500 rounded-lg
+              ${isFormValid ? "" : "opacity-50 cursor-not-allowed"}`}
+            >
               <p className="px-4 py-2">Send Invite</p>
             </button>
           </div>

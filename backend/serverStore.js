@@ -12,27 +12,26 @@ const getSocketServer = () => {
 
 const addNewConnectedUser = ({ socketId, userId }) => {
   connectedUsers.set(socketId, { userId });
-  console.log("connectedUsers", connectedUsers);
+  console.log("Connected :", connectedUsers);
 };
 
 const removeConnectedUser = (socketId) => {
   if (connectedUsers.has(socketId)) {
     connectedUsers.delete(socketId);
   }
-  console.log("connectedUsers Removed", connectedUsers);
 };
 
 // This will give us all the instances of the user that are connected i.e. multiple tabs or multiple devices
-const getActiveUserConnections = () => {
-  const activeUserConnections = [];
+const getActiveConnections = (userId) => {
+  const activeConnections = [];
 
-  connectedUsers.forEach((value, key) => {
+  connectedUsers.forEach(function (value, key) {
     if (value.userId === userId) {
-      activeUserConnections.push(key);
+      activeConnections.push(key);
     }
   });
 
-  return activeUserConnections;
+  return activeConnections;
 };
 
 const getOnlineUsers = () => {
@@ -52,6 +51,6 @@ module.exports = {
   getSocketServer,
   addNewConnectedUser,
   removeConnectedUser,
-  getActiveUserConnections,
+  getActiveConnections,
   getOnlineUsers,
 };

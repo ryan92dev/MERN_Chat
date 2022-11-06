@@ -6,24 +6,13 @@ const sendError = require("../utils/sendError");
 const authSocketMiddleware = asyncHandler(async (socket, next) => {
   const token = socket.handshake.auth.token;
 
-  if (!token) return sendError(socket, "Not authorized", 401);
-
   try {
-    const decoded = jwt.verify(
-      token,
-      process.env.ACCESS_JWT_SECRET,
-      (err, decoded) => {
-        if (err) return sendError(socket, "Not authorized", 401);
+    const decoded = jwt.verify(token, process.env.ACCESS_JWT_SECRET);
 
-        return decoded;
-      }
-    );
-
-    socket.user = await User.findById(decoded.id);
-
+    socket.user = decoded;
     next();
   } catch (error) {
-    return sendError(socket, "Not authorized", 401);
+    return sendError(res, "Not authorized", 401);
   }
 });
 

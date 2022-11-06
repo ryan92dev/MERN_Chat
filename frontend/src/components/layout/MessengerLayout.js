@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import AsideMenu from "../../sections/AsideMenu";
 import BottomBar from "../../sections/BottomBar";
-import Messenger2 from "../../sections/Messenger2";
+import Messenger from "../../sections/Messenger";
 import Sidebar from "../../sections/Sidebar";
 import { selectCurrentUser } from "../../features/Auth/authSlice";
 import { selectCurrentToken } from "../../features/Auth/authSlice";
@@ -17,13 +17,8 @@ const MessengerLayout = () => {
 
   useEffect(() => {
     if (user && token) {
-      console.log("user and token are available");
       connectSocketServer({ user, token });
     }
-
-    return () => {
-      console.log("cleanup");
-    };
   }, [user, token]);
 
   return (
@@ -42,7 +37,7 @@ const MessengerLayout = () => {
         </div>
 
         <div className="flex-1 bg-slate-800">
-          <Messenger2 />
+          <Messenger />
         </div>
 
         <div className="fixed top-0 right-0 z-10 hidden lg:static">

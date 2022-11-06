@@ -12,11 +12,6 @@ const friendInvitationSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
-    status: {
-      type: String,
-      enum: ["pending", "accepted", "declined"],
-      default: "pending",
-    },
   },
   {
     timestamps: true,

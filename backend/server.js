@@ -19,8 +19,8 @@ const connectDB = require("./config/connectDB");
 connectDB();
 
 // Error Handling
-require("express-async-errors");
-const errorHandler = require("./middleware/errorHandler");
+// require("express-async-errors");
+// const errorHandler = require("./middleware/errorHandler");
 
 // Express App
 const express = require("express");
@@ -38,6 +38,7 @@ app.use("/", require("./routes/root"));
 
 // API Routes
 app.use("/api/auth", require("./routes/authRoutes"));
+app.use("/api", require("./routes/friendRoutes"));
 
 // API / PAGE NOT FOUND
 app.all("*", (req, res) => {
@@ -51,7 +52,7 @@ app.all("*", (req, res) => {
   }
 });
 
-app.use(errorHandler);
+// app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 

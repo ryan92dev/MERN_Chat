@@ -1,70 +1,58 @@
-const asyncHandler = require("express-async-handler");
-const sendError = require("../utils/sendError");
-const FriendInvitation = reqiuire("../../models/friendInvitation.js");
+const User = require("../../models/User");
+const FriendInvitation = require("../../models/FriendInvitation");
+const friendsUpdates = require("../../socketHandlers/friends/updateFriendsPendingList");
 
-const sendInviteCtrl = asyncHandler(async (req, res) => {
-  const { targetEmail } = req.body;
+const sendError = require("../../utils/sendError");
 
-  const user = req.user;
+const sendInviteController = async (req, res, next) => {
+  const { email: targetMailAddress } = req.body;
 
-  // Check if user && target user exists
-  if (!user) return sendError(res, "Not authorized", 401);
-  const targetUser = await User.findOne({ email: targetEmail.toLowerCase() });
+  const { id: userId, email } = req.user;
 
-  if (!targetUser) return sendError(res, "User not found", 404);
+  // check if friend that we would like to invite is not user
 
-  if (targetUser._id.toString() === user._id.toString())
-    return sendError(res, "You can't send invitation to yourself", 400);
+  if (email.toLowerCase() === targetMailAddress.toLowerCase())
+    return sendError(res, "You can't invite yourself", 400);
 
-  // Check if user already sent invitation to target user
-  const isFriend = user.friends.find(
-    (friend) => friend.toString() === targetUser._id.toString()
-  );
+  const targetUser = await User.findOne({
+    email: targetMailAddress.toLowerCase(),
+  });
 
-  if (isFriend) return sendError(res, "You are already friends", 400);
+  if (!targetUser) {
+    return sendError(res, "User not found", 404);
+  }
 
-  // Check if user already sent invitation to target user
-  const isFriendRequestSent = user.friendRequestsSent.find(
-    (friendRequest) => friendRequest.toString() === targetUser._id.toString()
-  );
-
-  if (isFriendRequestSent)
-    return sendError(
-      res,
-      "You have already sent friend request to this user",
-      400
-    );
-
-  // Check if user already received invitation from target user
-  const isFriendRequestReceived = targetUser.friendRequestsReceived.find(
-    (friendRequest) => friendRequest.toString() === user._id.toString()
-  );
-
-  if (isFriendRequestReceived)
-    return sendError(
-      res,
-      "This user has already sent friend request to you",
-      400
-    );
-
-  // Create friend invitation
-  const newInvitation = new FriendInvitation({
-    sender: user._id,
+  // check if invitation has been already sent
+  const invitationAlreadyReceived = await FriendInvitation.findOne({
+    sender: userId,
     receiver: targetUser._id,
   });
 
-  await newInvitation.save();
+  if (invitationAlreadyReceived) {
+    return sendError(res, "Invitation has been already sent", 404);
+  }
 
-  user.friendRequestsSent.push(targetUser._id);
-  targetUser.friendRequestsReceived.push(user._id);
+  // check if the user whuch we would like to invite is already our friend
+  const usersAlreadyFriends = targetUser.friends.find(
+    (friendId) => friendId.toString() === userId.toString()
+  );
 
-  await user.save();
-  await targetUser.save();
+  if (usersAlreadyFriends) {
+    return sendError(res, "You are already friends", 400);
+  }
 
-  res.status(200).json({
-    success: true,
-    message: "Invitation sent",
+  // create new invitation in database
+  const newInvitation = await FriendInvitation.create({
+    sender: userId,
+    receiver: targetUser._id,
   });
-});
 
-module.exports = sendInviteCtrl;
+  // if invtiation has been successfully created we would like to update friends invitations if other user is online
+
+  // send pending invitations update to specific user
+  friendsUpdates.updateFriendsPendingInvitations(targetUser._id.toString());
+
+  return res.status(200);
+};
+
+module.exports = sendInviteController;

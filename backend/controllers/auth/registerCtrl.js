@@ -3,7 +3,7 @@ const User = require("../../models/User");
 const sendError = require("../../utils/sendError");
 
 const registerController = asyncHandler(async (req, res) => {
-  const { firstName, lastName, username, email, password } = req.body;
+  const { jobTitle, firstName, lastName, username, email, password } = req.body;
 
   // Check if user exists
   const userExists = await User.findOne({
@@ -18,6 +18,7 @@ const registerController = asyncHandler(async (req, res) => {
     password,
     firstName,
     lastName,
+    jobTitle,
   });
 
   // Send response
@@ -29,6 +30,7 @@ const registerController = asyncHandler(async (req, res) => {
       email: user.email,
       firstName: user.firstName,
       lastName: user.lastName,
+      jobTitle: user.jobTitle,
     },
   });
 });

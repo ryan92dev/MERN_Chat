@@ -22,7 +22,7 @@ const loginController = asyncHandler(async (req, res, next) => {
     { id: user._id, email: user.email },
     process.env.ACCESS_JWT_SECRET,
     {
-      expiresIn: "5min",
+      expiresIn: "1h",
     }
   );
 

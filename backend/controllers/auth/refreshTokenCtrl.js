@@ -7,8 +7,6 @@ const refreshTokenController = asyncHandler(async (req, res, next) => {
   const { refreshToken } = req.cookies;
   const { persist } = req.body;
 
-  console.log(req.cookies);
-
   // Check if refresh token exists
   if (!refreshToken) return sendError(res, "Unauthorized", 403);
 
@@ -71,7 +69,7 @@ const refreshTokenController = asyncHandler(async (req, res, next) => {
         { id: userFound._id, email: userFound.email },
         process.env.ACCESS_JWT_SECRET,
         {
-          expiresIn: "5min",
+          expiresIn: "1h",
         }
       );
 

@@ -13,20 +13,12 @@ const authMiddleware = asyncHandler(async (req, res, next) => {
   }
 
   try {
-    const decoded = jwt.verify(
-      token,
-      process.env.ACCESS_JWT_SECRET,
-      (err, decoded) => {
-        if (err) return sendError(res, "Not authorized", 401);
+    const decoded = jwt.verify(token, process.env.ACCESS_JWT_SECRET);
 
-        return decoded;
-      }
-    );
-
-    req.user = await User.findById(decoded.id);
+    req.user = decoded;
     next();
   } catch (error) {
-    return sendError(res, "Not authorized", 401);
+    return sendError(res, "Not authorized", 403);
   }
 });
 
